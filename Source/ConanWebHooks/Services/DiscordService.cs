@@ -18,34 +18,48 @@ public class DiscordService
 
     public async Task LogWebHook(LogData? data)
     {
-        var hook    = ulong.TryParse(_options.LogChannel?.Id, out var value) ? value : 0;
-        var token   = _options.LogChannel?.Token;
-        var message = data?.Text;
-
-        if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+        try
         {
-            await SendMessage(hook, token, message!);
-            _logger.LogInformation(data?.LogText);
+            var hook    = ulong.TryParse(_options.LogChannel?.Id, out var value) ? value : 0;
+            var token   = _options.LogChannel?.Token;
+            var message = data?.Text;
+
+            if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+            {
+                await SendMessage(hook, token, message!);
+                _logger.LogInformation(data?.LogText);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Log webhook");
         }
     }
 
     public async Task ChatWebHook(ChatData? data)
     {
-        var hook    = ulong.TryParse(_options.ChatChannel?.Id, out var value) ? value : 0;
-        var token   = _options.ChatChannel?.Token;
-        var message = data?.Text;
-
-        if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+        try
         {
-            if (_options.ChatChannel?.MonitorChannels?.Contains(data?.Channel ?? 0) == true)
+            var hook    = ulong.TryParse(_options.ChatChannel?.Id, out var value) ? value : 0;
+            var token   = _options.ChatChannel?.Token;
+            var message = data?.Text;
+
+            if (hook != 0 && !string.IsNullOrWhiteSpace(token))
             {
-                var logToDiscord = _options.ChatChannel.IncludeCommands || data?.Message?.StartsWith("/") == false;
-                if (logToDiscord)
+                if (_options.ChatChannel?.MonitorChannels?.Contains(data?.Channel ?? 0) == true)
                 {
-                    await SendMessage(hook, token, message!);
+                    var logToDiscord = _options.ChatChannel.IncludeCommands || data?.Message?.StartsWith("/") == false;
+                    if (logToDiscord)
+                    {
+                        await SendMessage(hook, token, message!);
+                    }
                 }
+                _logger.LogInformation(data?.LogText);
             }
-            _logger.LogInformation(data?.LogText);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Chat webhook");
         }
     }
 

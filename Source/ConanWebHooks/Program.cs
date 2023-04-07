@@ -4,7 +4,7 @@ using Serilog;
 
 Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
-            .CreateLogger();
+            .CreateBootstrapLogger();
 try
 {
     var builder = WebApplication.CreateBuilder(args);
@@ -14,14 +14,13 @@ try
         builder.Configuration.AddUserSecrets<DiscordData>(true);
     }
 
-    builder.Host.UseSerilog();
-
     builder.Services.Configure<DiscordData>(builder.Configuration.GetSection(DiscordData.SectionName));
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
     builder.Services.AddTransient<WebHookService>();
     builder.Services.AddTransient<DiscordService>();
-    
+
+    builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
 
     var app = builder.Build();
 
