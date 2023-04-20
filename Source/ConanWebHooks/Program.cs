@@ -1,5 +1,7 @@
 using ConanWebHooks.Models;
 using ConanWebHooks.Services;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -33,6 +35,7 @@ try
     app.MapGet("/log", async Task (DiscordService service, LogData logData) => await service.LogWebHook(logData));
     app.MapGet("/chat", async Task (DiscordService service, ChatData chatData) => await service.ChatWebHook(chatData));
 
+    Log.Information("Starting application.");
     app.Run();
 }
 catch (Exception ex)
@@ -41,5 +44,6 @@ catch (Exception ex)
 }
 finally
 {
+    Log.Information("Application is shutting down.");
     Log.CloseAndFlush();
 }

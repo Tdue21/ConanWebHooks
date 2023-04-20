@@ -7,27 +7,30 @@ public class DiscordService
 {
     private readonly ILogger<DiscordService> _logger;
     private readonly WebHookService _webHookService;
-    private readonly DiscordData _options;
-
+    private readonly HookData _logOptions;
+    private readonly HookChatData _chatOptions;
+    
     public DiscordService(ILogger<DiscordService> logger, IOptions<DiscordData> options, WebHookService webHookService)
     {
-        _logger         = logger ?? throw new ArgumentNullException(nameof(logger));
-        _options        = options?.Value ?? throw new ArgumentNullException(nameof(options));
         _webHookService = webHookService ?? throw new ArgumentNullException(nameof(webHookService));
+        _logger         = logger ?? throw new ArgumentNullException(nameof(logger));
+        
+        _chatOptions    = options?.Value?.ChatChannel ?? throw new ArgumentNullException(nameof(options.Value.ChatChannel));
+        _logOptions     = options?.Value?.LogChannel ?? throw new ArgumentNullException(nameof(options.Value.LogChannel));
     }
 
-    public async Task LogWebHook(LogData? data)
+    public async Task LogWebHook(LogData data)
     {
         try
         {
-            var hook    = ulong.TryParse(_options.LogChannel?.Id, out var value) ? value : 0;
-            var token   = _options.LogChannel?.Token;
-            var message = data?.Text;
+            var hook    = ulong.TryParse(_logOptions.Id, out var value) ? value : 0;
+            var token   = _logOptions.Token;
+            var message = data.Text;
 
             if (hook != 0 && !string.IsNullOrWhiteSpace(token))
             {
-                await SendMessage(hook, token, message!);
-                _logger.LogInformation(data?.LogText);
+                await SendMessage(hook, token, message);
+                _logger.LogInformation(data.LogText);
             }
         }
         catch (Exception e)
@@ -36,25 +39,25 @@ public class DiscordService
         }
     }
 
-    public async Task ChatWebHook(ChatData? data)
+    public async Task ChatWebHook(ChatData data)
     {
         try
         {
-            var hook    = ulong.TryParse(_options.ChatChannel?.Id, out var value) ? value : 0;
-            var token   = _options.ChatChannel?.Token;
-            var message = data?.Text;
+            var hook    = ulong.TryParse(_chatOptions.Id, out var value) ? value : 0;
+            var token   = _chatOptions?.Token;
+            var message = data.Text;
 
             if (hook != 0 && !string.IsNullOrWhiteSpace(token))
             {
-                if (_options.ChatChannel?.MonitorChannels?.Contains(data?.Channel ?? 0) == true)
+                if (_chatOptions?.MonitorChannels.Length == 0 || _chatOptions?.MonitorChannels.Contains(data.Channel) == true)
                 {
-                    var logToDiscord = _options.ChatChannel.IncludeCommands || data?.Message?.StartsWith("/") == false;
+                    var logToDiscord = _chatOptions.IncludeCommands || data.Message?.StartsWith("/") == false;
                     if (logToDiscord)
                     {
-                        await SendMessage(hook, token, message!);
+                        await SendMessage(hook, token, message);
                     }
                 }
-                _logger.LogInformation(data?.LogText);
+                _logger.LogInformation(data.LogText);
             }
         }
         catch (Exception e)
