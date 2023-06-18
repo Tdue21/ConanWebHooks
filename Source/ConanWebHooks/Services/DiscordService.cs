@@ -7,30 +7,33 @@ public class DiscordService
 {
     private readonly ILogger<DiscordService> _logger;
     private readonly WebHookService _webHookService;
-    private readonly HookData _logOptions;
-    private readonly HookChatData _chatOptions;
-    
+    private readonly ServerHooks[] _serverHooks;
+
     public DiscordService(ILogger<DiscordService> logger, IOptions<DiscordData> options, WebHookService webHookService)
     {
         _webHookService = webHookService ?? throw new ArgumentNullException(nameof(webHookService));
-        _logger         = logger ?? throw new ArgumentNullException(nameof(logger));
-        
-        _chatOptions    = options?.Value?.ChatChannel ?? throw new ArgumentNullException(nameof(options.Value.ChatChannel));
-        _logOptions     = options?.Value?.LogChannel ?? throw new ArgumentNullException(nameof(options.Value.LogChannel));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _serverHooks = options?.Value?.ServerHooks ?? throw new ArgumentNullException(nameof(options.Value.ServerHooks));
     }
 
     public async Task LogWebHook(LogData data)
     {
         try
         {
-            var hook    = ulong.TryParse(_logOptions.Id, out var value) ? value : 0;
-            var token   = _logOptions.Token;
-            var message = data.Text;
-
-            if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+            var serverHook = _serverHooks.FirstOrDefault(x => string.Equals(x.Server, data.Server, StringComparison.OrdinalIgnoreCase));
+            if (serverHook != null)
             {
-                await SendMessage(hook, token, message);
-                _logger.LogInformation(data.LogText);
+                var options = serverHook.LogChannel;
+
+                var hook = ulong.TryParse(options.Id, out var value) ? value : 0;
+                var token = options.Token;
+                var message = data.Text;
+
+                if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+                {
+                    await SendMessage(hook, token, message);
+                    _logger.LogInformation(data.LogText);
+                }
             }
         }
         catch (Exception e)
@@ -43,21 +46,26 @@ public class DiscordService
     {
         try
         {
-            var hook    = ulong.TryParse(_chatOptions.Id, out var value) ? value : 0;
-            var token   = _chatOptions?.Token;
-            var message = data.Text;
-
-            if (hook != 0 && !string.IsNullOrWhiteSpace(token))
+            var serverHook = _serverHooks.FirstOrDefault(x => string.Equals(x.Server, data.Server, StringComparison.OrdinalIgnoreCase));
+            if (serverHook != null)
             {
-                if (_chatOptions?.MonitorChannels.Length == 0 || _chatOptions?.MonitorChannels.Contains(data.Channel) == true)
+                var options = serverHook.ChatChannel;
+                var hook    = ulong.TryParse(options.Id, out var value) ? value : 0;
+                var token   = options.Token;
+                var message = data.Text;
+
+                if (hook != 0 && !string.IsNullOrWhiteSpace(token))
                 {
-                    var logToDiscord = _chatOptions.IncludeCommands || data.Message?.StartsWith("/") == false;
-                    if (logToDiscord)
+                    if (options.MonitorChannels.Length == 0 || options.MonitorChannels.Contains(data.Channel))
                     {
-                        await SendMessage(hook, token, message);
+                        var logToDiscord = options.ExcludeCommands.All(x => data.Message?.StartsWith(x) != true);
+                        if (logToDiscord)
+                        {
+                            await SendMessage(hook, token, message);
+                        }
                     }
+                    _logger.LogInformation(data.LogText);
                 }
-                _logger.LogInformation(data.LogText);
             }
         }
         catch (Exception e)

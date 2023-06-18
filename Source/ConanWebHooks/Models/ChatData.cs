@@ -5,6 +5,7 @@ namespace ConanWebHooks.Models;
 public class ChatData
 {
     public DateTime Received { get; init; }
+    public string? Server { get; init; }
     public string? Message { get; init; }
     public string? Sender { get; init; }
     public string? Character { get; init; }
@@ -13,12 +14,12 @@ public class ChatData
     public int Channel { get; init; }
 
     public string Text => $"[{Received.TimeOfDay:hh\\:mm\\:ss}] **{Character}** in channel '{Channel}': {Message}";
-    public string LogText => $"[{Received.TimeOfDay:hh\\:mm\\:ss}] Character={Character}; Sender={Sender}; Channel={Channel}; Radius={Radius}; Location={Location}; Message={Message}";
+    public string LogText => $"[{Server?.ToUpperInvariant()}] [{Received.TimeOfDay:hh\\:mm\\:ss}] Character={Character}; Sender={Sender}; Channel={Channel}; Radius={Radius}; Location={Location}; Message={Message}";
 
     public static ValueTask<ChatData?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
-
         // message, sender, character, radius, location, channel
+        var server    = context.Request.RouteValues["server"];
         var message   = context.Request.Query["message"];
         var sender    = context.Request.Query["sender"];
         var character = context.Request.Query["character"];
@@ -28,6 +29,7 @@ public class ChatData
 
         var result = new ChatData
                      {
+                         Server = server?.ToString(),
                          Received  = DateTime.Now,
                          Message   = message,
                          Sender    = sender,
