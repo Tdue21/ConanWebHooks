@@ -13,7 +13,7 @@ public class DiscordService
     {
         _webHookService = webHookService ?? throw new ArgumentNullException(nameof(webHookService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _serverHooks = options?.Value?.ServerHooks ?? throw new ArgumentNullException(nameof(options.Value.ServerHooks));
+        _serverHooks = options.Value.ServerHooks ?? throw new ArgumentNullException(nameof(options.Value.ServerHooks));
     }
 
     public async Task LogWebHook(LogData data)
@@ -38,7 +38,7 @@ public class DiscordService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Log webhook");
+            _logger.LogError(e, "WebHook::Log");
         }
     }
 
@@ -70,7 +70,7 @@ public class DiscordService
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Chat webhook");
+            _logger.LogError(e, "WebHook::Chat");
         }
     }
 
