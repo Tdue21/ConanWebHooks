@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.Contracts;
-
-namespace ConanWebHooks.Models;
+﻿namespace ConanWebHooks.Models;
 
 public class DiscordData
 {
@@ -12,6 +10,7 @@ public class DiscordData
 public class ServerHooks
 {
     public string Server { get; set; } = string.Empty;
+    public bool SeparateLog { get; set; } = false;
     public HookData LogChannel { get; set; } = new();
     public HookChatData ChatChannel { get; set; } = new();
 
