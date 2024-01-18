@@ -5,7 +5,7 @@ VisualStudioVersion = 17.2.32526.322
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConanWebHooks", "ConanWebHooks\ConanWebHooks.csproj", "{C0AB6209-21F7-472B-9368-9863D64A84F7}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5677E0EE-4A80-485B-9127-CE490F97749C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".Solution Items", ".Solution Items", "{5677E0EE-4A80-485B-9127-CE490F97749C}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
@@ -14,6 +14,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\LICENSE.md = ..\LICENSE.md
 		..\README.md = ..\README.md
 	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamUpdateMonitor", "SteamUpdateMonitor\SteamUpdateMonitor.csproj", "{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamUpdateMonitor.Tests", "SteamUpdateMonitor.Tests\SteamUpdateMonitor.Tests.csproj", "{16D0DDF4-6BF1-4961-B37F-5775628BA186}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Steam Update Monitor", "Steam Update Monitor", "{F1EAF2DD-7ED5-4FF4-BF0B-B19B7C87F066}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Conan Exiles Webhooks", "Conan Exiles Webhooks", "{0607EDBF-E921-405E-B2B6-551A64E1CAE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,9 +33,22 @@ Global
 		{C0AB6209-21F7-472B-9368-9863D64A84F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C0AB6209-21F7-472B-9368-9863D64A84F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C0AB6209-21F7-472B-9368-9863D64A84F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16D0DDF4-6BF1-4961-B37F-5775628BA186}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16D0DDF4-6BF1-4961-B37F-5775628BA186}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16D0DDF4-6BF1-4961-B37F-5775628BA186}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16D0DDF4-6BF1-4961-B37F-5775628BA186}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C0AB6209-21F7-472B-9368-9863D64A84F7} = {0607EDBF-E921-405E-B2B6-551A64E1CAE3}
+		{73B24E5E-CFE2-43D3-87A4-06F62FBBD5D1} = {F1EAF2DD-7ED5-4FF4-BF0B-B19B7C87F066}
+		{16D0DDF4-6BF1-4961-B37F-5775628BA186} = {F1EAF2DD-7ED5-4FF4-BF0B-B19B7C87F066}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EA8D10E6-1BB6-4E8C-B1A1-6ACFF7CEA9EF}
