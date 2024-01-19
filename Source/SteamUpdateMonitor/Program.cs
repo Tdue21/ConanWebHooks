@@ -22,7 +22,7 @@ try
     builder.Services.AddTransient<IFileSystem, PhysicalFileSystem>();
     builder.Services.AddTransient<ISteamApiService, SteamApiService>();
     builder.Services.AddTransient<IDiscordService, DiscordService>();
-    builder.Services.AddHostedService<SteamMonitor>();
+    builder.Services.AddHostedService<SteamMonitorBackgroundService>();
     
     builder.Services.AddSerilog((provider, config) =>
     {

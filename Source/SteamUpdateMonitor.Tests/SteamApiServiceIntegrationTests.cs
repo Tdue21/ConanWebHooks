@@ -34,7 +34,7 @@ namespace SteamUpdateMonitor.Tests
             var total = 0;
             while (hasRemaining)
             {
-                var result = await _steam.QueryApplication("440900", pageNo, 100);
+                var result = await _steam.QueryApplication("440900", pageNo, 100, CancellationToken.None);
                 total = result?.Response?.Total ?? 0;
                 var items = result?.Response?.PublishedFileDetails?.Select(x => new ModDetails
                 {
@@ -60,7 +60,7 @@ namespace SteamUpdateMonitor.Tests
         [Fact]
         public async Task QueryModList_Test()
         {
-            var result = await _steam.QueryModList(modIds);
+            var result = await _steam.QueryModList(modIds, CancellationToken.None);
 
             var items = result?.Response?.PublishedFileDetails?.Select(x => new ModDetails
             {
