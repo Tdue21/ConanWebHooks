@@ -1,4 +1,5 @@
-﻿using Discord.Webhook;
+﻿using Discord;
+using Discord.Webhook;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SteamUpdateMonitor.Interfaces;
@@ -17,7 +18,7 @@ internal class DiscordService : IDiscordService
         _settings = settings?.Value ?? throw new ArgumentNullException(nameof(settings));
     }
 
-    public virtual async Task SendMessageAsync(string message)
+    public virtual async Task SendMessageAsync(string message, IEnumerable<Embed>? embeds = null)
     {
         try
         {
@@ -26,7 +27,7 @@ internal class DiscordService : IDiscordService
 
             using var client = new DiscordWebhookClient($"https://discord.com/api/webhooks/{hookId}/{token}");
             {
-                await client.SendMessageAsync(message);
+                await client.SendMessageAsync(message, embeds: embeds);
             }
         }
         catch (Exception ex)

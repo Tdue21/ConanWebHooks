@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using System.Text;
+using Discord;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -7,16 +9,20 @@ using SteamUpdateMonitor.Models;
 
 namespace SteamUpdateMonitor;
 
-internal class SteamMonitor : BackgroundService
+internal class SteamMonitorBackgroundService : BackgroundService
 {
-    private readonly ILogger<SteamMonitor> _logger;
+    private readonly ILogger<SteamMonitorBackgroundService> _logger;
     private readonly IFileSystem _fileSystem;
     private readonly ISteamApiService _steamApiService;
     private readonly IDiscordService _discordService;
     private readonly ApplicationSettings _settings;
     private DateTime _nextRun;
 
-    public SteamMonitor(ISteamApiService steamApiService, IDiscordService discordService, IOptions<ApplicationSettings> settings, ILogger<SteamMonitor> logger, IFileSystem fileSystem)
+    public SteamMonitorBackgroundService(ISteamApiService steamApiService,
+                                         IDiscordService discordService,
+                                         IOptions<ApplicationSettings> settings,
+                                         ILogger<SteamMonitorBackgroundService> logger,
+                                         IFileSystem fileSystem)
     {
         _steamApiService = steamApiService ?? throw new ArgumentNullException(nameof(steamApiService));
         _discordService = discordService ?? throw new ArgumentNullException(nameof(discordService));
@@ -71,9 +77,10 @@ internal class SteamMonitor : BackgroundService
             }
 
             await SaveLastUpdated(modUpdates, cancellationToken);
-            
-            if(isUpdated.Count > 0) { 
-                await SendUpdateToDiscord(isUpdated, cancellationToken);
+
+            if (isUpdated.Count > 0)
+            {
+                await SendUpdateToDiscord(isUpdated);
             }
 
             _logger.LogInformation("Checked {modCount} mods. {isUpdated} has updates.", ids.Length, isUpdated.Count);
@@ -84,9 +91,15 @@ internal class SteamMonitor : BackgroundService
         }
     }
 
-    private Task SendUpdateToDiscord(List<ModDetails> isUpdated, CancellationToken cancellationToken)
+    private async Task SendUpdateToDiscord(List<ModDetails> isUpdated)
     {
-        throw new NotImplementedException();
+        var message = new StringBuilder()
+            .AppendLine($"**There are {isUpdated.Count} mod update(s):**")
+            .AppendLine("---");
+
+        isUpdated.ForEach(x => message.AppendLine($"  * [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId}"));
+
+        await _discordService.SendMessageAsync(message.ToString());
     }
 
     private async Task<ModDetails[]?> GetWorkshopData(string[] ids, CancellationToken cancellationToken)
