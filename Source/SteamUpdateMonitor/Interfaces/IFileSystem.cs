@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
+using SteamUpdateMonitor.Models;
+using System.Text;
 
 namespace SteamUpdateMonitor.Interfaces;
 
@@ -7,6 +9,13 @@ namespace SteamUpdateMonitor.Interfaces;
 /// </summary>
 public interface IFileSystem
 {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    ModFileInfo[] GetFileInfo(string path);
+
     /// <summary>
     /// 
     /// </summary>

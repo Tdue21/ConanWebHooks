@@ -13,4 +13,9 @@ public class ApplicationSettings
     /// 
     /// </summary>
     public string[] ModIds { get; set; } = Array.Empty<string>();
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public string ModPath { get; set; } = string.Empty;
 }

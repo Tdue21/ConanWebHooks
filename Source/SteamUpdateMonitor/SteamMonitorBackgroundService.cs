@@ -94,10 +94,9 @@ internal class SteamMonitorBackgroundService : BackgroundService
     private async Task SendUpdateToDiscord(List<ModDetails> isUpdated)
     {
         var message = new StringBuilder()
-            .AppendLine($"**There are {isUpdated.Count} mod update(s):**")
-            .AppendLine("---");
+            .AppendLine($"__**There are {isUpdated.Count} mod update(s):**__");
 
-        isUpdated.ForEach(x => message.AppendLine($"  * [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId}"));
+        isUpdated.ForEach(x => message.AppendLine($"* [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId})"));
 
         await _discordService.SendMessageAsync(message.ToString());
     }
@@ -121,6 +120,11 @@ internal class SteamMonitorBackgroundService : BackgroundService
 
     private async Task<Dictionary<string, DateTimeOffset>?> GetLastUpdated(CancellationToken cancellationToken)
     {
+        if(!string.IsNullOrWhiteSpace(_settings.ModPath))
+        {
+            return _fileSystem.GetFileInfo(_settings.ModPath).ToDictionary(x => x.ModId, x => x.Updated);
+        }
+
         var times = await _fileSystem.ReadFileAsync("mods.json", cancellationToken: cancellationToken);
         var modUpdates = JsonConvert.DeserializeObject<Dictionary<string, DateTimeOffset>>(times);
         return modUpdates;
