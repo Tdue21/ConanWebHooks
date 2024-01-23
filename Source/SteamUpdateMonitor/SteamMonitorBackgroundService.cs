@@ -94,11 +94,11 @@ internal class SteamMonitorBackgroundService : BackgroundService
     private async Task SendUpdateToDiscord(List<ModDetails> isUpdated)
     {
         var message = new StringBuilder()
-            .AppendLine("@Admin @here")
+            .AppendLine("@admin @here")
             .AppendLine($"**There are {isUpdated.Count} mod update(s):**")
             .AppendLine("---");
 
-        isUpdated.ForEach(x => message.AppendLine($"  * [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId}"));
+        isUpdated.ForEach(x => message.AppendLine($"* [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId}"));
 
         await _discordService.SendMessageAsync(message.ToString());
     }
