@@ -94,6 +94,7 @@ internal class SteamMonitorBackgroundService : BackgroundService
     private async Task SendUpdateToDiscord(List<ModDetails> isUpdated)
     {
         var message = new StringBuilder()
+            .AppendLine("@Admin @here")
             .AppendLine($"**There are {isUpdated.Count} mod update(s):**")
             .AppendLine("---");
 
