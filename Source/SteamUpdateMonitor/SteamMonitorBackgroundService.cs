@@ -98,7 +98,7 @@ internal class SteamMonitorBackgroundService : BackgroundService
             .AppendLine($"**There are {isUpdated.Count} mod update(s):**")
             .AppendLine("---");
 
-        isUpdated.ForEach(x => message.AppendLine($"* [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId}"));
+        isUpdated.ForEach(x => message.AppendLine($"* [{x.Title}](https://steamcommunity.com/sharedfiles/filedetails/?id={x.WorkshopId})"));
 
         await _discordService.SendMessageAsync(message.ToString());
     }
