@@ -2,8 +2,10 @@
 using Flurl.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using SteamUpdateMonitor.Interfaces;
 using SteamUpdateMonitor.Models;
+using System.Text.Json.Serialization;
 
 namespace SteamUpdateMonitor.Services;
 
@@ -46,8 +48,10 @@ public class SteamApiService : ISteamApiService
                             page = pageNo,
                             numperpage = numPerPage
                         })
-                        .GetJsonAsync<QueryFilesResult>(cancellationToken: cancellationToken);
-            return result;
+                        .GetStringAsync(cancellationToken: cancellationToken);
+                        //.GetJsonAsync<QueryFilesResult>(cancellationToken: cancellationToken);
+
+            return JsonConvert.DeserializeObject<QueryFilesResult>(result);
         }
         catch (FlurlHttpException ex)
         {
@@ -77,8 +81,9 @@ public class SteamApiService : ISteamApiService
             var result = await SteamApiBaseUrl
                         .AppendPathSegments("ISteamRemoteStorage", "GetPublishedFileDetails", "v1")
                         .PostUrlEncodedAsync(content, cancellationToken: cancellationToken)
-                        .ReceiveJson<GetPublishedFilesResult>();
-            return result;
+                        .ReceiveString();
+                        //.ReceiveJson<GetPublishedFilesResult>();
+            return JsonConvert.DeserializeObject<GetPublishedFilesResult>(result);
         }
         catch (FlurlHttpException ex)
         {
