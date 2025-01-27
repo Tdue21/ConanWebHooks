@@ -7,7 +7,7 @@ public class DiscordService
 {
     private readonly ILogger<DiscordService> _logger;
     private readonly WebHookService _webHookService;
-    private readonly ServerHooks[] _serverHooks;
+    private readonly ServerHook[] _serverHooks;
 
     public DiscordService(ILogger<DiscordService> logger, IOptions<DiscordData> options, WebHookService webHookService)
     {
@@ -31,7 +31,14 @@ public class DiscordService
 
                 if (hook != 0 && !string.IsNullOrWhiteSpace(token))
                 {
-                    await SendMessage(hook, token, message);
+                    if(options.ParseLog)
+                    {
+                        await ParseLog(hook, token, data);
+                    }
+                    else
+                    {
+                        await SendMessage(hook, token, message);
+                    }
                     _logger.LogInformation(data.LogText);
                 }
             }
@@ -77,5 +84,15 @@ public class DiscordService
     private async Task SendMessage(ulong hook, string token, string message)
     {
         await _webHookService.SendMessageAsync(hook, token, message);
+    }
+
+    private async Task ParseLog(ulong hook, string token, LogData data)
+    {
+        if(data.EventType == "FlowChart")
+        {
+            var parameters = data.ParameterData;
+        }
+
+
     }
 }

@@ -16,11 +16,15 @@ try
         builder.Configuration.AddUserSecrets<DiscordData>(true);
     }
 
-    builder.Services.AddWindowsService();
-    builder.Services.AddHostedService<WindowsService>();
+    //builder.Services.AddWindowsService(options => options.ServiceName = "Conan Webhooks");
+    //builder.Services.AddHostedService<WindowsService>();
+
     builder.Services.Configure<DiscordData>(builder.Configuration.GetSection(DiscordData.SectionName));
     builder.Services.AddTransient<WebHookService>();
-    builder.Services.AddTransient<DiscordService>();
+    builder.Services.AddTransient<LoggerService>();
+    builder.Services.AddTransient<ChatService>();
+    builder.Services.AddTransient<SpawnService>();
+
     builder.Services.AddEndpointsApiExplorer();
 #if DEBUG
     builder.Services.AddSwaggerGen();
@@ -37,7 +41,7 @@ try
                                     if(hook.SeparateLog)
                                     {
                                         configuration.WriteTo.Logger(lc => lc.Filter.ByIncludingOnly($"StartsWith(@m, '[{server}]')")
-                                                                             .WriteTo.File($"Logs/{server}/log-.txt",
+                                                                             .WriteTo.File($"Logs/{server}-log-.txt",
                                                                                rollingInterval: RollingInterval.Day,
                                                                                rollOnFileSizeLimit: true,
                                                                                fileSizeLimitBytes: 10_485_760,
@@ -56,9 +60,11 @@ try
     }
 #endif
 
-    app.MapGet("/{server}/log", async Task (DiscordService service, [AsParameters]LogData logData) => await service.LogWebHook(logData));
+    app.MapGet("/{server}/log", async Task (LoggerService service, [AsParameters]LogData logData) => await service.ReceiveData(logData));
 
-    app.MapGet("/{server}/chat", async Task (DiscordService service, [AsParameters]ChatData chatData) => await service.ChatWebHook(chatData));
+    app.MapGet("/{server}/chat", async Task (ChatService service, [AsParameters]ChatData chatData) => await service.ReceiveData(chatData));
+    
+    app.MapGet("/{server}/spawn", async Task (SpawnService service, [AsParameters]SpawnData chatData) => await service.ReceiveData(chatData));
 
     Log.Information("Starting application.");
     app.Run();

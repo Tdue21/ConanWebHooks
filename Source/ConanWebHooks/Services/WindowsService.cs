@@ -3,7 +3,7 @@
 public class WindowsService : BackgroundService
 {
     private readonly ILogger<WindowsService> _logger;
-    private const string ServiceName = "Conan WebHooks Service";
+    private const string _serviceName = "Conan WebHooks Service";
 
     public WindowsService(ILogger<WindowsService> logger)
     {
@@ -12,17 +12,30 @@ public class WindowsService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        _logger.LogInformation($"{ServiceName} is starting.");
-
-        stoppingToken.Register(() => _logger.LogInformation($"{ServiceName} is stopping."));
-
-        while (!stoppingToken.IsCancellationRequested)
+        _logger.LogInformation($"{_serviceName} is starting.");
+        try
         {
-            _logger.LogInformation($"{ServiceName} is doing background work.");
+            stoppingToken.Register(() => _logger.LogInformation($"{_serviceName} is stopping."));
 
-            await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                _logger.LogInformation($"{_serviceName} is doing background work.");
+#if DEBUG
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+#endif
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // When the stopping token is canceled, for example, a call made from services.msc,
+            // we shouldn't exit with a non-zero exit code. In other words, this is expected...
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            Environment.Exit(1);
         }
 
-        _logger.LogInformation($"{ServiceName} has stopped.");
+        _logger.LogInformation($"{_serviceName} has stopped.");
     }
 }
