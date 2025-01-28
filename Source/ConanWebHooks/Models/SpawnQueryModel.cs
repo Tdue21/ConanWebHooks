@@ -3,7 +3,7 @@ using System.Threading.Channels;
 
 namespace ConanWebHooks.Models;
 
-public class SpawnData
+public class SpawnQueryModel
 {
     private DateTime _received;
 
@@ -18,7 +18,7 @@ public class SpawnData
     public string Text => $"[{_received.TimeOfDay:hh\\:mm\\:ss}] **{CharName}** ({SteamId}) has joined the server.";
     //public string LogText => $"[{Server?.ToUpperInvariant()}] [{_received.TimeOfDay:hh\\:mm\\:ss}] Character={Character}; Sender={Sender}; Channel={Channel}; Radius={Radius}; Location={Location}; Message={Message}";
 
-    public static ValueTask<SpawnData?> BindAsync(HttpContext context, ParameterInfo parameter)
+    public static ValueTask<SpawnQueryModel?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
         // Request starting HTTP / 1.1 GET http://192.168.0.41:5000/sinners/spawn
         // ?charName=Corathine
@@ -37,7 +37,7 @@ public class SpawnData
         var eventType = context.Request.Query["eventType"];
         var queryParams = context.Request.Query["params"];
 
-        var result = new SpawnData
+        var result = new SpawnQueryModel
         {
             Server = server?.ToString(),
             _received = DateTime.Now,
@@ -49,7 +49,7 @@ public class SpawnData
             Params = queryParams
         };
 
-        return ValueTask.FromResult<SpawnData?>(result);
+        return ValueTask.FromResult<SpawnQueryModel?>(result);
     }
 
 }

@@ -1,23 +1,22 @@
 ﻿using ConanWebHooks.Models;
-using Microsoft.Extensions.Options;
+using ConanWebHooks.Services;
 
-namespace ConanWebHooks.Services;
+namespace ConanWebHooks.Logic;
 
-public class LoggerService(ILogger<ChatService> logger, IOptions<DiscordData> options, WebHookService webHookService) : IReceiverService<LogData>
+public class GameLogHandler(ILogger<ChatHandler> logger, SettingsService settingsService, WebHookService webHookService) : IReceiverService<LogQueryModel>
 {
-    private readonly ServerHook[] _serverHooks = options?.Value?.ServerHooks ?? throw new ArgumentNullException(nameof(options));
     private readonly WebHookService _webHookService = webHookService ?? throw new ArgumentNullException(nameof(webHookService));
-    private readonly ILogger<ChatService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly SettingsService _settingsService = settingsService ?? throw new ArgumentNullException(nameof(settingsService));
+    private readonly ILogger<ChatHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-    public async Task ReceiveData(LogData data)
+    public async Task ReceiveData(LogQueryModel data)
     {
         try
         {
-            var serverHook = _serverHooks.FirstOrDefault(x => string.Equals(x.Server, data.Server, StringComparison.OrdinalIgnoreCase));
-            if (serverHook != null)
+            var settings = await _settingsService.GetSettings();
+            if (!string.IsNullOrWhiteSpace(data.Server) && settings.Servers.TryGetValue(data.Server, out var server))
             {
-                var options = serverHook.LogChannel;
-
+                var options = server.LogChannel;
                 var hook = ulong.TryParse(options.Id, out var value) ? value : 0;
                 var token = options.Token;
                 var message = data.Text;

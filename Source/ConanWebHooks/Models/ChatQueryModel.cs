@@ -2,7 +2,7 @@
 
 namespace ConanWebHooks.Models;
 
-public class ChatData
+public class ChatQueryModel
 {
     private DateTime _received;
 
@@ -17,7 +17,7 @@ public class ChatData
     public string Text => $"[{_received.TimeOfDay:hh\\:mm\\:ss}] **{Character}** in channel '{Channel}': {Message}";
     public string LogText => $"[{Server?.ToUpperInvariant()}] [{_received.TimeOfDay:hh\\:mm\\:ss}] Character={Character}; Sender={Sender}; Channel={Channel}; Radius={Radius}; Location={Location}; Message={Message}";
 
-    public static ValueTask<ChatData?> BindAsync(HttpContext context, ParameterInfo parameter)
+    public static ValueTask<ChatQueryModel?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
         // message, sender, character, radius, location, channel
         var server    = context.Request.RouteValues["server"];
@@ -28,7 +28,7 @@ public class ChatData
         var location  = context.Request.Query["location"];
         var channel   = context.Request.Query["channel"].ToInt32();
 
-        var result = new ChatData
+        var result = new ChatQueryModel
                      {
                          Server = server?.ToString(),
                          _received  = DateTime.Now,
@@ -39,6 +39,6 @@ public class ChatData
                          Location  = location,
                          Channel   = channel
                      };
-        return ValueTask.FromResult<ChatData?>(result);
+        return ValueTask.FromResult<ChatQueryModel?>(result);
     }
 }

@@ -1,3 +1,4 @@
+using ConanWebHooks.Logic;
 using ConanWebHooks.Models;
 using ConanWebHooks.Services;
 using Microsoft.Extensions.Options;
@@ -11,19 +12,12 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    if (builder.Environment.IsDevelopment())
-    {
-        builder.Configuration.AddUserSecrets<DiscordData>(true);
-    }
-
-    //builder.Services.AddWindowsService(options => options.ServiceName = "Conan Webhooks");
-    //builder.Services.AddHostedService<WindowsService>();
-
-    builder.Services.Configure<DiscordData>(builder.Configuration.GetSection(DiscordData.SectionName));
+    builder.Services.AddTransient<IDataService, FileSystemService>();
     builder.Services.AddTransient<WebHookService>();
-    builder.Services.AddTransient<LoggerService>();
-    builder.Services.AddTransient<ChatService>();
-    builder.Services.AddTransient<SpawnService>();
+    builder.Services.AddTransient<GameLogHandler>();
+    builder.Services.AddTransient<ChatHandler>();
+    builder.Services.AddTransient<SpawnHandler>();
+    builder.Services.AddSingleton<SettingsService>();
 
     builder.Services.AddEndpointsApiExplorer();
 #if DEBUG
@@ -32,22 +26,22 @@ try
 
     builder.Host.UseSerilog((context, serviceProvider, configuration) =>
                             {
-                                configuration.ReadFrom.Configuration(context.Configuration);
-                                var data = serviceProvider.GetRequiredService<IOptions<DiscordData>>().Value;
+                                //configuration.ReadFrom.Configuration(context.Configuration);
+                                //var data = serviceProvider.GetRequiredService<IOptions<DiscordData>>().Value;
 
-                                foreach (var hook in data.ServerHooks)
-                                {
-                                    var server = hook.Server.ToUpperInvariant();
-                                    if(hook.SeparateLog)
-                                    {
-                                        configuration.WriteTo.Logger(lc => lc.Filter.ByIncludingOnly($"StartsWith(@m, '[{server}]')")
-                                                                             .WriteTo.File($"Logs/{server}-log-.txt",
-                                                                               rollingInterval: RollingInterval.Day,
-                                                                               rollOnFileSizeLimit: true,
-                                                                               fileSizeLimitBytes: 10_485_760,
-                                                                               retainedFileCountLimit: 14));
-                                    }
-                                }
+                                //foreach (var hook in data.ServerHooks)
+                                //{
+                                //    var server = hook.Server.ToUpperInvariant();
+                                //    if(hook.SeparateLog)
+                                //    {
+                                //        configuration.WriteTo.Logger(lc => lc.Filter.ByIncludingOnly($"StartsWith(@m, '[{server}]')")
+                                //                                             .WriteTo.File($"Logs/{server}-log-.txt",
+                                //                                               rollingInterval: RollingInterval.Day,
+                                //                                               rollOnFileSizeLimit: true,
+                                //                                               fileSizeLimitBytes: 10_485_760,
+                                //                                               retainedFileCountLimit: 14));
+                                //    }
+                                //}
                             });
 
     var app = builder.Build();
@@ -60,11 +54,11 @@ try
     }
 #endif
 
-    app.MapGet("/{server}/log", async Task (LoggerService service, [AsParameters]LogData logData) => await service.ReceiveData(logData));
+    app.MapGet("/{server}/log", async Task (GameLogHandler service, [AsParameters]LogQueryModel logData) => await service.ReceiveData(logData));
 
-    app.MapGet("/{server}/chat", async Task (ChatService service, [AsParameters]ChatData chatData) => await service.ReceiveData(chatData));
+    app.MapGet("/{server}/chat", async Task (ChatHandler service, [AsParameters]ChatQueryModel chatData) => await service.ReceiveData(chatData));
     
-    app.MapGet("/{server}/spawn", async Task (SpawnService service, [AsParameters]SpawnData chatData) => await service.ReceiveData(chatData));
+    app.MapGet("/{server}/spawn", async Task (SpawnHandler service, [AsParameters]SpawnQueryModel chatData) => await service.ReceiveData(chatData));
 
     Log.Information("Starting application.");
     app.Run();

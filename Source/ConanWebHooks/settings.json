@@ -1,0 +1,81 @@
+{
+	"Servers": {
+		"Test": {
+			"SeparateLog": true,
+
+			"LogChannel": {
+				"Id": "",
+				"Token": "",
+				"ParseLog":  true
+			},
+
+			"ChatChannel": {
+				"Id": "",
+				"Token": "",
+				"MonitorChannels": [ 1 ]
+			},
+
+			"SpawnChannel": {
+				"Id": "",
+				"Token": ""
+			}
+		}
+	},
+
+	"DiscordData": {
+		"ServerHooks": [
+			{
+				"Server": "test",
+				"SeparateLog": true,
+				"LogChannel": {
+					"Id": "",
+					"Token": ""
+				},
+				"ChatChannel": {
+					"Id": "",
+					"Token": "",
+					"MonitorChannels": [ 1 ]
+				}
+			},
+
+			{
+				"Server": "carnal",
+				"SeparateLog": true,
+
+				"LogChannel": {
+					"Id": "1093514107728187453",
+					"Token": "BzUo-8-MenOJYIduKXH2k4HpJ3kR60Ky8kG7hmpkzzeUMjH1HXh03WIy12X289JQtiMU"
+				},
+
+				"ChatChannel": {
+					"Id": "1075145632618131487",
+					"Token": "XJPkCPWReJgxLPNkpFo32kX4sjiM9UT6hsB6HslEGK3rCffjDy_phzWa0hqegJhaMnfl",
+					"MonitorChannels": [ 1 ]
+				},
+
+				"SpawnChannel": {
+					"Id": "",
+					"Token": ""
+				}
+			},
+
+			{
+				"Server": "carnal2",
+				"SeparateLog": true,
+
+				"LogChannel": {
+					"Id": "1093514107728187453",
+					"Token": "BzUo-8-MenOJYIduKXH2k4HpJ3kR60Ky8kG7hmpkzzeUMjH1HXh03WIy12X289JQtiMU"
+				},
+
+				"ChatChannel": {
+					"Id": "1075145632618131487",
+					"Token": "XJPkCPWReJgxLPNkpFo32kX4sjiM9UT6hsB6HslEGK3rCffjDy_phzWa0hqegJhaMnfl",
+					"MonitorChannels": [ 1 ]
+				}
+			}
+
+		]
+	}
+
+}

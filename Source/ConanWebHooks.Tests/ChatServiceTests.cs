@@ -1,3 +1,4 @@
+using ConanWebHooks.Logic;
 using ConanWebHooks.Models;
 using ConanWebHooks.Services;
 using Microsoft.Extensions.Logging;
@@ -8,22 +9,22 @@ namespace ConanWebHooks.Tests;
 
 public class ChatServiceTests
 {
-    private ILogger<ChatService> _logger;
-    private IOptions<DiscordData> _options;
+    private ILogger<ChatHandler> _logger;
+    private SettingsService _options;
     private WebHookService _webHookService;
 
     [Fact]
     public async Task ReceiveDataTestAsync()
     {
-        _logger = Substitute.For<ILogger<ChatService>>();
-        _options = Substitute.For<IOptions<DiscordData>>();
-        _options.Value.Returns(GetDiscordData());
+        _logger = Substitute.For<ILogger<ChatHandler>>();
+        _options = Substitute.For<SettingsService>();
+        _options.GetSettings().Returns(GetDiscordData());
 
         _webHookService = Substitute.For<WebHookService>();
 
-        var service = new ChatService(_logger, _options, _webHookService);
+        var service = new ChatHandler(_logger, _options, _webHookService);
 
-        await service.ReceiveData(new ChatData
+        await service.ReceiveData(new ChatQueryModel
         {
             Server = "Test",
             Channel = 1,
@@ -34,19 +35,21 @@ public class ChatServiceTests
             Sender = "TestSender"
         });
 
-        await _webHookService.Received(1).SendMessageAsync(Arg.Any<ulong>(), Arg.Any<string>(), Arg.Any<string>());
+        await _webHookService.Received(1)
+                             .SendMessageAsync(Arg.Is<ulong>(x => x == 123456789), 
+                                               Arg.Is<string>(x => x == "TestToken"), 
+                                               Arg.Is<string>(x => x == ));
 
     }
 
-    private DiscordData GetDiscordData()
+    private Settings GetDiscordData()
     {
-        return new DiscordData
+        return new()
         {
-            ServerHooks =
-            [
-                new ServerHook
+            Servers = new Dictionary<string, ServerData>
+            {
+                ["Test"] = new ServerData
                 {
-                    Server = "Test",
                     ChatChannel = new ChatHookData
                     {
                         Id = "123456789",
@@ -55,7 +58,7 @@ public class ChatServiceTests
                         ExcludeCommands = []
                     }
                 }
-            ]
+            }
         };
     }
 }

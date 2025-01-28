@@ -2,7 +2,7 @@
 
 namespace ConanWebHooks.Models;
 
-public class LogData
+public class LogQueryModel
 {
     public DateTime LogDate { get; set; }
     public string? Server { get; set; }
@@ -17,7 +17,7 @@ public class LogData
     public string Text => $"[{LogDate}] {EventCategory} log: {CharacterName} triggered {EventId}: {ParameterData}";
     public string LogText => $"[{Server?.ToUpperInvariant()}] [{LogDate}] SteamId={SteamId}; CharacterName={CharacterName}; ActName={ActName}; EventId={EventId}; EventCategory={EventCategory}; EventType={EventType}; Parameters: {ParameterData}";
 
-    public static ValueTask<LogData?> BindAsync(HttpContext context, ParameterInfo parameter)
+    public static ValueTask<LogQueryModel?> BindAsync(HttpContext context, ParameterInfo parameter)
     {
         var server        = context.Request.RouteValues["server"];
         var logDate       = context.Request.Query["date"].ToDateTime();
@@ -29,7 +29,7 @@ public class LogData
         var eventType     = context.Request.Query["eventType"];
         var paramData     = context.Request.Query["params"];
 
-        var result = new LogData
+        var result = new LogQueryModel
                      {
                          Server        = server?.ToString(), 
                          LogDate       = logDate,
@@ -41,6 +41,6 @@ public class LogData
                          EventType     = eventType,
                          ParameterData = paramData
                      };
-        return ValueTask.FromResult<LogData?>(result);
+        return ValueTask.FromResult<LogQueryModel?>(result);
     }
 }
